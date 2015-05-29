@@ -17,7 +17,8 @@
     "test": "eslint index.js lib test && mocha --reporter spec"
   },
   "keywords": [
-    "skivvy-package"
+    "skivvy-package",
+    "browserify"
   ],
   "author": "Tim Kendrick <timkendrick@gmail.com>",
   "license": "ISC",
