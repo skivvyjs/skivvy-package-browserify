@@ -15,7 +15,7 @@ skivvy install browserify
 
 ## Overview
 
-This package allows you to compile JavaScript using [Browserify]() from within the [Skivvy](https://www.npmjs.com/package/skivvy) task runner.
+This package allows you to compile JavaScript using [Browserify](http://browserify.org/) from within the [Skivvy](https://www.npmjs.com/package/skivvy) task runner.
 
 
 ## Included tasks
