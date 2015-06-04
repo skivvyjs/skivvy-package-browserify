@@ -24,6 +24,7 @@
   "license": "ISC",
   "dependencies": {
     "browserify": "^10.2.1",
+    "envify": "^3.4.0",
     "mkdirp": "^0.5.1",
     "object-assign": "^3.0.0",
     "promise": "^7.0.1",
