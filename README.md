@@ -37,6 +37,7 @@ skivvy run browserify
 | ---- | ---- | -------- | ------- | ----------- |
 | `source` | `string` `Array<string>` | Yes | N/A | Path to source files |
 | `destination` | `string` | Yes | N/A | Path to compiled output file |
+| `watch` | `boolean` `object` | No | `false` | Whether to watch source files for changes using [watchify](https://www.npmjs.com/package/watchify) |
 | `options` | `object` | No | `{}` | Browserify [API options](https://github.com/substack/node-browserify#browserifyfiles--opts) |
 | `options.require` | `Array<string|object>` | No | `[]` | Files to make available outside the bundle |
 | `options.external` | `Array<string>` | No | `[]` | Prevent files from being loaded into the current bundle |
@@ -48,6 +49,7 @@ skivvy run browserify
 
 ##### Notes:
 
+- If a key/value object is used as the `watch` configuration setting, that object will be passed as the `watchify()` function's [`opts`](https://github.com/substack/watchify#var-w--watchifyb-opts) argument
 - `options.require` is an array files to make available outside the bundle and any associated options:
 
 	```json

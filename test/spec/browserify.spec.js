@@ -8,6 +8,7 @@ var sinonChai = require('sinon-chai');
 var rewire = require('rewire');
 var util = require('util');
 var path = require('path');
+var EventEmitter = require('events').EventEmitter;
 var Readable = require('stream').Readable;
 var Writable = require('stream').Writable;
 
@@ -17,24 +18,29 @@ chai.use(sinonChai);
 describe('task:browserify', function() {
 	var mockApi;
 	var mockBrowserify;
+	var mockWatchify;
 	var mockMkdirp;
 	var mockFs;
 	var task;
 	before(function() {
 		mockApi = createMockApi();
 		mockBrowserify = createMockBrowserify();
+		mockWatchify = createMockWatchify();
 		mockMkdirp = createMockMkdirp();
 		mockFs = createMockFs();
 		task = rewire('../../lib/tasks/browserify');
 		task.__set__('browserify', mockBrowserify);
+		task.__set__('watchify', mockWatchify);
 		task.__set__('mkdirp', mockMkdirp);
 		task.__set__('fs', mockFs);
 	});
 
 	afterEach(function() {
 		mockBrowserify.reset();
+		mockWatchify.reset();
 		mockMkdirp.reset();
 		mockFs.reset();
+		mockApi.reset();
 	});
 
 	function createMockApi() {
@@ -47,8 +53,16 @@ describe('task:browserify', function() {
 					debug: sinon.spy(function(message) {}),
 					info: sinon.spy(function(message) {}),
 					warn: sinon.spy(function(message) {}),
-					errror: sinon.spy(function(message) {})
+					error: sinon.spy(function(message) {}),
+					success: sinon.spy(function(message) {})
 				}
+			},
+			reset: function() {
+				this.utils.log.debug.reset();
+				this.utils.log.info.reset();
+				this.utils.log.warn.reset();
+				this.utils.log.error.reset();
+				this.utils.log.success.reset();
 			}
 		};
 
@@ -74,18 +88,25 @@ describe('task:browserify', function() {
 				transform: sinon.spy(function(transform, options) {}),
 				plugin: sinon.spy(function(plugin, options) {}),
 				bundle: sinon.spy(function() {
+					var instance = this;
+					instance.bundleCount++;
 					var hasError = files.some(function(filename) {
-						return path.basename(filename) === 'browserify-error.js';
+						return (path.basename(filename) === 'browserify-error.js') ||
+							((path.basename(filename) === 'watchify-error.js') && (instance.bundleCount > 1));
 					});
-					var output = hasError ? new Error('Program error') : 'console.log("Hello, world!")';
+					if (hasError) {
+						var error = new Error('Browserify error');
+						instance.bundle.error = error;
+					}
+					var output = error || 'console.log("Hello, world!")';
 					var stream = createReadableStream(output);
 					stream.pipe = sinon.spy(stream.pipe);
-					mockBrowserify.instance.bundle.output = stream;
+					instance.bundle.output = stream;
 					return stream;
-				}),
-				output: null
+				})
 			};
 			mockBrowserify.instance = instance;
+			mockBrowserify.instance.bundleCount = 0;
 			return instance;
 		});
 
@@ -95,9 +116,50 @@ describe('task:browserify', function() {
 		mockBrowserify.reset = function() {
 			reset.call(mockBrowserify);
 			mockBrowserify.instance = null;
+			mockBrowserify.error = null;
 		};
 
 		return mockBrowserify;
+	}
+
+	function createMockWatchify() {
+		var mockWatchify = sinon.spy(function(browserify, options) {
+			var instance = new EventEmitter();
+			instance.bundle = function() {
+				return browserify.bundle();
+			};
+			instance.require = function(filename, options) {
+				return browserify.require(filename, options);
+			};
+			instance.external = function(filename) {
+				return browserify.external(filename);
+			};
+			instance.ignore = function(filename) {
+				return browserify.ignore(filename);
+			};
+			instance.exclude = function(filename) {
+				return browserify.exclude(filename);
+			};
+			instance.transform = function(transform, options) {
+				return browserify.transform(transform, options);
+			};
+			instance.plugin = function(plugin, options) {
+				return browserify.plugin(plugin, options);
+			};
+			mockWatchify.instance = instance;
+			return instance;
+		});
+
+		mockWatchify.args = { cache: {}, packageCache: {} };
+
+		var reset = mockWatchify.reset;
+		mockWatchify.reset = function() {
+			reset.call(mockWatchify);
+			mockWatchify.instance = null;
+			mockWatchify.args = { cache: {}, packageCache: {} };
+		};
+
+		return mockWatchify;
 	}
 
 	function createMockMkdirp() {
@@ -511,5 +573,140 @@ describe('task:browserify', function() {
 				foo: 'bar'
 			}
 		);
+	});
+
+	it('should watch source files using Watchify API', function() {
+		task.call(mockApi, {
+			source: [
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			destination: '/project/dist/app.js',
+			options: {
+				foo: 'bar'
+			},
+			watch: true
+		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar',
+				cache: {},
+				packageCache: {}
+			}
+		);
+		expect(mockWatchify).to.have.been.calledWith(
+			mockBrowserify.instance,
+			{}
+		);
+
+		expect(mockBrowserify.instance.bundle).to.have.been.calledOnce;
+
+		mockBrowserify.instance.bundle.output.pipe.reset();
+		mockFs.createWriteStream.instance = null;
+		mockFs.createWriteStream.reset();
+
+		mockWatchify.instance.emit('update');
+
+		expect(mockBrowserify.instance.bundle).to.have.been.calledTwice;
+		expect(mockFs.createWriteStream).to.have.been.calledWith(
+			'/project/dist/app.js'
+		);
+		expect(mockBrowserify.instance.bundle.output.pipe).to.have.been.calledWith(
+			mockFs.createWriteStream.instance
+		);
+	});
+
+	it('should pass watchify options to Watchify API', function() {
+		task.call(mockApi, {
+			source: [
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			destination: '/project/dist/app.js',
+			options: {
+				foo: 'bar'
+			},
+			watch: {
+				baz: 'qux'
+			}
+		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar',
+				cache: {},
+				packageCache: {}
+			}
+		);
+		expect(mockWatchify).to.have.been.calledWith(
+			mockBrowserify.instance,
+			{
+				baz: 'qux'
+			}
+		);
+	});
+
+	it('should log watchify events (success)', function(done) {
+		task.call(mockApi, {
+			source: [
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			destination: '/project/dist/app.js',
+			watch: true
+		});
+
+		expect(mockApi.utils.log.info).to.have.been.calledOnce;
+		expect(mockApi.utils.log.info).to.have.been.calledWith('Watching for changes...');
+		expect(mockApi.utils.log.success).not.to.have.been.called;
+		expect(mockApi.utils.log.error).not.to.have.been.called;
+
+		mockApi.utils.log.info.reset();
+		mockWatchify.instance.emit('update');
+
+		expect(mockApi.utils.log.info).to.have.been.calledOnce;
+		expect(mockApi.utils.log.info).to.have.been.calledWith('Rebuilding browserify bundle...');
+		expect(mockApi.utils.log.success).not.to.have.been.called;
+		expect(mockApi.utils.log.error).not.to.have.been.called;
+
+		mockFs.createWriteStream.instance.on('finish', function() {
+			expect(mockApi.utils.log.success).to.have.been.calledOnce;
+			expect(mockApi.utils.log.success).to.have.been.calledWith('Browserify bundle rebuilt');
+			expect(mockApi.utils.log.error).not.to.have.been.called;
+			done();
+		});
+	});
+
+	it('should log watchify events (failure)', function(done) {
+		task.call(mockApi, {
+			source: [
+				'/project/src/index.js',
+				'/project/src/watchify-error.js'
+			],
+			destination: '/project/dist/app.js',
+			watch: true
+		});
+
+		expect(mockApi.utils.log.success).not.to.have.been.called;
+		expect(mockApi.utils.log.error).not.to.have.been.called;
+
+		mockWatchify.instance.emit('update');
+
+		expect(mockApi.utils.log.success).not.to.have.been.called;
+		expect(mockApi.utils.log.error).not.to.have.been.called;
+
+		mockFs.createWriteStream.instance.on('error', function() {
+			expect(mockApi.utils.log.success).not.to.have.been.called;
+			expect(mockApi.utils.log.error).to.have.been.calledOnce;
+			expect(mockApi.utils.log.error).to.have.been.calledWith(mockBrowserify.instance.bundle.error);
+			done();
+		});
 	});
 });
