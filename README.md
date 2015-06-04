@@ -130,3 +130,8 @@ skivvy run browserify
 	> _If configuration is being set programmatically, plugins can also be specified as functions instead of strings._
 
 	Each entry in `options.plugins` will be passed to the [`b.plugin()`](https://github.com/substack/node-browserify#bpluginplugin-opts) method.
+
+
+#### Returns:
+
+`Stream.Writable` The output stream that is written to the filesystem
