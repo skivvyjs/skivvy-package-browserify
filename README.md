@@ -37,9 +37,9 @@ skivvy run browserify
 | ---- | ---- | -------- | ------- | ----------- |
 | `source` | `string` `Array<string>` | Yes | N/A | Path to source files |
 | `destination` | `string` | Yes | N/A | Path to compiled output file |
-| `watch` | `boolean` `object` | No | `false` | Whether to watch source files for changes using [watchify](https://www.npmjs.com/package/watchify) |
-| `env` | `string` `object` | No | `null` | Set environment variables and enable [envify](https://www.npmjs.com/package/envify) transform |
 | `options` | `object` | No | `{}` | Browserify [API options](https://github.com/substack/node-browserify#browserifyfiles--opts) |
+| `options.watch` | `boolean` `object` | No | `false` | Whether to watch source files for changes using [watchify](https://www.npmjs.com/package/watchify) |
+| `options.env` | `string` `object` | No | `null` | Set environment variables and enable [envify](https://www.npmjs.com/package/envify) transform |
 | `options.require` | `Array<string|object>` | No | `[]` | Files to make available outside the bundle |
 | `options.external` | `Array<string>` | No | `[]` | Prevent files from being loaded into the current bundle |
 | `options.ignore` | `Array<string>` | No | `[]` | Prevent files from showing up in the output bundle (return `{}` when required) |

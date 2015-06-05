@@ -365,6 +365,15 @@ describe('task:browserify', function() {
 				]
 			}
 		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
 		expect(mockBrowserify.instance.require).to.have.been.calledThrice;
 		expect(mockBrowserify.instance.require).to.have.been.calledWith(
 			'/project/src/foo.js', null
@@ -393,6 +402,15 @@ describe('task:browserify', function() {
 				]
 			}
 		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
 		expect(mockBrowserify.instance.external).to.have.been.calledThrice;
 		expect(mockBrowserify.instance.external).to.have.been.calledWith(
 			'/project/src/foo.js'
@@ -421,6 +439,15 @@ describe('task:browserify', function() {
 				]
 			}
 		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
 		expect(mockBrowserify.instance.ignore).to.have.been.calledThrice;
 		expect(mockBrowserify.instance.ignore).to.have.been.calledWith(
 			'/project/src/foo.js'
@@ -449,6 +476,15 @@ describe('task:browserify', function() {
 				]
 			}
 		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
 		expect(mockBrowserify.instance.exclude).to.have.been.calledThrice;
 		expect(mockBrowserify.instance.exclude).to.have.been.calledWith(
 			'/project/src/foo.js'
@@ -480,6 +516,15 @@ describe('task:browserify', function() {
 				]
 			}
 		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
 		expect(mockBrowserify.instance.transform).to.have.been.calledThrice;
 		expect(mockBrowserify.instance.transform).to.have.been.calledWith(
 			'foo', null
@@ -511,6 +556,15 @@ describe('task:browserify', function() {
 				]
 			}
 		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
 		expect(mockBrowserify.instance.plugin).to.have.been.calledThrice;
 		expect(mockBrowserify.instance.plugin).to.have.been.calledWith(
 			'foo', null
@@ -529,18 +583,7 @@ describe('task:browserify', function() {
 				'/project/src/index.js',
 				'/project/src/browserify-error.js'
 			],
-			destination: '/project/dist/app.js',
-			options: {
-				foo: 'bar',
-				plugins: [
-					'foo',
-					'bar',
-					{
-						plugin: 'foobar',
-						options: { foo: 'bar' }
-					}
-				]
-			}
+			destination: '/project/dist/app.js'
 		});
 		stream.on('error', function(error) {
 			done();
@@ -556,18 +599,7 @@ describe('task:browserify', function() {
 				'/project/src/index.js',
 				'/project/src/app.js'
 			],
-			destination: '/project/dist/write-error.js',
-			options: {
-				foo: 'bar',
-				plugins: [
-					'foo',
-					'bar',
-					{
-						plugin: 'foobar',
-						options: { foo: 'bar' }
-					}
-				]
-			}
+			destination: '/project/dist/write-error.js'
 		});
 		stream.on('error', function(error) {
 			done();
@@ -603,9 +635,9 @@ describe('task:browserify', function() {
 			],
 			destination: '/project/dist/app.js',
 			options: {
-				foo: 'bar'
-			},
-			watch: true
+				foo: 'bar',
+				watch: true
+			}
 		});
 		expect(mockBrowserify).to.have.been.calledWith(
 			[
@@ -648,10 +680,10 @@ describe('task:browserify', function() {
 			],
 			destination: '/project/dist/app.js',
 			options: {
-				foo: 'bar'
-			},
-			watch: {
-				baz: 'qux'
+				foo: 'bar',
+				watch: {
+					baz: 'qux'
+				}
 			}
 		});
 		expect(mockBrowserify).to.have.been.calledWith(
@@ -680,7 +712,9 @@ describe('task:browserify', function() {
 				'/project/src/app.js'
 			],
 			destination: '/project/dist/app.js',
-			watch: true
+			options: {
+				watch: true
+			}
 		});
 
 		expect(mockApi.utils.log.info).to.have.been.calledOnce;
@@ -711,7 +745,9 @@ describe('task:browserify', function() {
 				'/project/src/watchify-error.js'
 			],
 			destination: '/project/dist/app.js',
-			watch: true
+			options: {
+				watch: true
+			}
 		});
 
 		expect(mockApi.utils.log.success).not.to.have.been.called;
@@ -734,11 +770,23 @@ describe('task:browserify', function() {
 		task.call(mockApi, {
 			source: [
 				'/project/src/index.js',
-				'/project/src/watchify-error.js'
+				'/project/src/app.js'
 			],
 			destination: '/project/dist/app.js',
-			env: 'env'
+			options: {
+				foo: 'bar',
+				env: 'env'
+			}
 		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
 		expect(mockEnvify).to.have.been.calledWith({
 			NODE_ENV: 'env'
 		});
@@ -752,14 +800,26 @@ describe('task:browserify', function() {
 		task.call(mockApi, {
 			source: [
 				'/project/src/index.js',
-				'/project/src/watchify-error.js'
+				'/project/src/app.js'
 			],
 			destination: '/project/dist/app.js',
-			env: {
-				NODE_ENV: 'env',
-				FOO: 'bar'
+			options: {
+				foo: 'bar',
+				env: {
+					NODE_ENV: 'env',
+					FOO: 'bar'
+				}
 			}
 		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
 		expect(mockEnvify).to.have.been.calledWith({
 			NODE_ENV: 'env',
 			FOO: 'bar'
