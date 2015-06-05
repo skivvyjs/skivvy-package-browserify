@@ -45,8 +45,8 @@ skivvy run browserify
 | `options.external` | `Array<string>` | No | `[]` | Prevent files from being loaded into the current bundle |
 | `options.ignore` | `Array<string>` | No | `[]` | Prevent files from showing up in the output bundle (return `{}` when required) |
 | `options.exclude` | `Array<string>` | No | `[]` | Prevent files from showing up in the output bundle (throw an error when required) |
-| `options.transform` | `Array<string|object|function>` | No | `[]` | Browserify transforms |
-| `options.plugin` | `Array<string|object|function>` | No | `[]` | Browserify plugins |
+| `options.transform` | `Array<string,object,function>` | No | `[]` | Browserify transforms |
+| `options.plugin` | `Array<string,object,function>` | No | `[]` | Browserify plugins |
 
 
 ##### Notes:
