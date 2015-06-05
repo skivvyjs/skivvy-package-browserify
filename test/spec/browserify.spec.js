@@ -279,7 +279,7 @@ describe('task:browserify', function() {
 				ignore: [],
 				exclude: [],
 				transform: [],
-				plugins: []
+				plugin: []
 			}
 		});
 	});
@@ -546,7 +546,7 @@ describe('task:browserify', function() {
 			destination: '/project/dist/app.js',
 			options: {
 				foo: 'bar',
-				plugins: [
+				plugin: [
 					'foo',
 					'bar',
 					{

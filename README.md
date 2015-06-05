@@ -45,7 +45,7 @@ skivvy run browserify
 | `options.ignore` | `Array<string>` | No | `[]` | Prevent files from showing up in the output bundle (return `{}` when required) |
 | `options.exclude` | `Array<string>` | No | `[]` | Prevent files from showing up in the output bundle (throw an error when required) |
 | `options.transform` | `Array<string|object|function>` | No | `[]` | Browserify transforms |
-| `options.plugins` | `Array<string|object|function>` | No | `[]` | Browserify plugins |
+| `options.plugin` | `Array<string|object|function>` | No | `[]` | Browserify plugins |
 
 
 ##### Notes:
@@ -118,7 +118,7 @@ skivvy run browserify
 	Each entry in `options.transforms` will be passed to the [`b.transform()`](https://github.com/substack/node-browserify#btransformtr-opts) method.
 
 
-- `options.plugins` is an array of Browserify plugins and any associated options:
+- `options.plugin` is an array of Browserify plugins and any associated options:
 
 	```json
 	[
@@ -133,7 +133,7 @@ skivvy run browserify
 
 	> _If configuration is being set programmatically, plugins can also be specified as functions instead of strings._
 
-	Each entry in `options.plugins` will be passed to the [`b.plugin()`](https://github.com/substack/node-browserify#bpluginplugin-opts) method.
+	Each entry in `options.plugin` will be passed to the [`b.plugin()`](https://github.com/substack/node-browserify#bpluginplugin-opts) method.
 
 
 #### Returns:
