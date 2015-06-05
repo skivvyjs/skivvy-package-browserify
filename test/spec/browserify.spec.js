@@ -20,6 +20,7 @@ describe('task:browserify', function() {
 	var mockBrowserify;
 	var mockWatchify;
 	var mockEnvify;
+	var mockUglifyify;
 	var mockMkdirp;
 	var mockFs;
 	var task;
@@ -28,12 +29,14 @@ describe('task:browserify', function() {
 		mockBrowserify = createMockBrowserify();
 		mockWatchify = createMockWatchify();
 		mockEnvify = createMockEnvify();
+		mockUglifyify = createMockUglifyify();
 		mockMkdirp = createMockMkdirp();
 		mockFs = createMockFs();
 		task = rewire('../../lib/tasks/browserify');
 		task.__set__('browserify', mockBrowserify);
 		task.__set__('watchify', mockWatchify);
 		task.__set__('envify', mockEnvify);
+		task.__set__('uglifyify', mockUglifyify);
 		task.__set__('mkdirp', mockMkdirp);
 		task.__set__('fs', mockFs);
 	});
@@ -180,6 +183,12 @@ describe('task:browserify', function() {
 		};
 
 		return mockEnvify;
+	}
+
+	function createMockUglifyify() {
+		var mockUglifyify = function() {};
+
+		return mockUglifyify;
 	}
 
 	function createMockMkdirp() {
@@ -827,6 +836,69 @@ describe('task:browserify', function() {
 		expect(mockBrowserify.instance.transform).to.have.been.calledOnce;
 		expect(mockBrowserify.instance.transform).to.have.been.calledWith(
 			mockEnvify.instance
+		);
+	});
+
+	it('should minify output using uglifyify', function() {
+		task.call(mockApi, {
+			source: [
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			destination: '/project/dist/app.js',
+			options: {
+				foo: 'bar',
+				minify: true
+			}
+		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
+		expect(mockBrowserify.instance.transform).to.have.been.calledOnce;
+		expect(mockBrowserify.instance.transform).to.have.been.calledWith(
+			mockUglifyify,
+			{
+				global: true
+			}
+		);
+	});
+
+	it('should pass uglify options to Uglifyify API', function() {
+		task.call(mockApi, {
+			source: [
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			destination: '/project/dist/app.js',
+			options: {
+				foo: 'bar',
+				minify: {
+					baz: 'qux'
+				}
+			}
+		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
+		expect(mockBrowserify.instance.transform).to.have.been.calledOnce;
+		expect(mockBrowserify.instance.transform).to.have.been.calledWith(
+			mockUglifyify,
+			{
+				global: true,
+				baz: 'qux'
+			}
 		);
 	});
 });

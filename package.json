@@ -28,6 +28,7 @@
     "mkdirp": "^0.5.1",
     "object-assign": "^3.0.0",
     "promise": "^7.0.1",
+    "uglifyify": "^3.0.1",
     "watchify": "^3.2.1"
   },
   "devDependencies": {
