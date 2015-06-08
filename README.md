@@ -41,6 +41,7 @@ skivvy run browserify
 | `options.watch` | `boolean` `object` | No | `false` | Whether to watch source files for changes using [watchify](https://www.npmjs.com/package/watchify) |
 | `options.minify` | `boolean` `object` | No | `false` | Whether to minify JS output using the [uglifyify](https://www.npmjs.com/package/uglifyify) transform |
 | `options.env` | `string` `object` | No | `null` | Set environment variables and enable [envify](https://www.npmjs.com/package/envify) transform |
+| `options.babelify` | `boolean` `object` | No | `false` | Whether to transform JS output using the [babelify](https://www.npmjs.com/package/babelify) transform |
 | `options.require` | `Array<string|object>` | No | `[]` | Files to make available outside the bundle |
 | `options.external` | `Array<string>` | No | `[]` | Prevent files from being loaded into the current bundle |
 | `options.ignore` | `Array<string>` | No | `[]` | Prevent files from showing up in the output bundle (return `{}` when required) |
@@ -54,6 +55,7 @@ skivvy run browserify
 - If a key/value object is used as the `watch` configuration setting, that object will be passed as the `watchify()` function's [`opts`](https://github.com/substack/watchify#var-w--watchifyb-opts) argument
 - If a key/value object is used as the `minify` configuration setting, that object will be passed as the options to [`uglifyify`](https://www.npmjs.com/package/uglifyify) / [`UglifyJS2`](https://www.npmjs.com/package/uglify-js)
 - If a string is used as the `env` configuration setting, `process.env.NODE_ENV` will be set to that value. If a key/value object is used, all the contained values will be assigned to `process.env` as environment variables
+- If a key/value object is used as the `babelify` configuration setting, that object will be passed as the `babelify()` function's [`options`](http://babeljs.io/docs/usage/options/) argument
 - `options.require` is an array files to make available outside the bundle and any associated options:
 
 	```json

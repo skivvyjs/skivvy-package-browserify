@@ -19,6 +19,7 @@ describe('task:browserify', function() {
 	var mockApi;
 	var mockBrowserify;
 	var mockWatchify;
+	var mockBabelify;
 	var mockEnvify;
 	var mockUglifyify;
 	var mockMkdirp;
@@ -28,6 +29,7 @@ describe('task:browserify', function() {
 		mockApi = createMockApi();
 		mockBrowserify = createMockBrowserify();
 		mockWatchify = createMockWatchify();
+		mockBabelify = createMockBabelify();
 		mockEnvify = createMockEnvify();
 		mockUglifyify = createMockUglifyify();
 		mockMkdirp = createMockMkdirp();
@@ -35,6 +37,7 @@ describe('task:browserify', function() {
 		task = rewire('../../lib/tasks/browserify');
 		task.__set__('browserify', mockBrowserify);
 		task.__set__('watchify', mockWatchify);
+		task.__set__('babelify', mockBabelify);
 		task.__set__('envify', mockEnvify);
 		task.__set__('uglifyify', mockUglifyify);
 		task.__set__('mkdirp', mockMkdirp);
@@ -157,6 +160,7 @@ describe('task:browserify', function() {
 			return instance;
 		});
 
+		mockWatchify.instance = null;
 		mockWatchify.args = { cache: {}, packageCache: {} };
 
 		var reset = mockWatchify.reset;
@@ -169,12 +173,20 @@ describe('task:browserify', function() {
 		return mockWatchify;
 	}
 
+	function createMockBabelify() {
+		var mockBabelify = function() {};
+
+		return mockBabelify;
+	}
+
 	function createMockEnvify() {
 		var mockEnvify = sinon.spy(function(options) {
 			var instance = function() {};
 			mockEnvify.instance = instance;
 			return instance;
 		});
+
+		mockEnvify.instance = null;
 
 		var reset = mockEnvify.reset;
 		mockEnvify.reset = function() {
@@ -288,7 +300,8 @@ describe('task:browserify', function() {
 				ignore: [],
 				exclude: [],
 				transform: [],
-				plugin: []
+				plugin: [],
+				babelify: false
 			}
 		});
 	});
@@ -773,6 +786,66 @@ describe('task:browserify', function() {
 			expect(mockApi.utils.log.error).to.have.been.calledWith(mockBrowserify.instance.bundle.error);
 			done();
 		});
+	});
+
+	it('should transform output using babelify', function() {
+		task.call(mockApi, {
+			source: [
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			destination: '/project/dist/app.js',
+			options: {
+				foo: 'bar',
+				babelify: true
+			}
+		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
+		expect(mockBrowserify.instance.transform).to.have.been.calledOnce;
+		expect(mockBrowserify.instance.transform).to.have.been.calledWith(
+			mockBabelify,
+			{}
+		);
+	});
+
+	it('should pass babelify options to babelify API', function() {
+		task.call(mockApi, {
+			source: [
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			destination: '/project/dist/app.js',
+			options: {
+				foo: 'bar',
+				babelify: {
+					baz: 'qux'
+				}
+			}
+		});
+		expect(mockBrowserify).to.have.been.calledWith(
+			[
+				'/project/src/index.js',
+				'/project/src/app.js'
+			],
+			{
+				foo: 'bar'
+			}
+		);
+		expect(mockBrowserify.instance.transform).to.have.been.calledOnce;
+		expect(mockBrowserify.instance.transform).to.have.been.calledWith(
+			mockBabelify,
+			{
+				baz: 'qux'
+			}
+		);
 	});
 
 	it('should use envify to set NODE_ENV if env is a string', function() {
