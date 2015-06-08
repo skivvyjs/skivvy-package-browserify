@@ -52,10 +52,10 @@ skivvy run browserify
 
 ##### Notes:
 
-- If a key/value object is used as the `watch` configuration setting, that object will be passed as the `watchify()` function's [`opts`](https://github.com/substack/watchify#var-w--watchifyb-opts) argument
-- If a key/value object is used as the `minify` configuration setting, that object will be passed as the options to [`uglifyify`](https://www.npmjs.com/package/uglifyify) / [`UglifyJS2`](https://www.npmjs.com/package/uglify-js)
-- If a string is used as the `env` configuration setting, `process.env.NODE_ENV` will be set to that value. If a key/value object is used, all the contained values will be assigned to `process.env` as environment variables
-- If a key/value object is used as the `babelify` configuration setting, that object will be passed as the `babelify()` function's [`options`](http://babeljs.io/docs/usage/options/) argument
+- If the `watch` configuration setting is a key/value object, that object will be passed as the `watchify()` function's [`opts`](https://github.com/substack/watchify#var-w--watchifyb-opts) argument
+- If the `minify` configuration setting is a key/value object, that object will be used as the [UglifyJS2 options](https://github.com/mishoo/UglifyJS2#usage)
+- If the `env` configuration setting is a string, `process.env.NODE_ENV` will be set to that value. If it is a key/value object, all the contained values will be assigned to `process.env` as environment variables
+- If the `babelify` configuration setting is a key/value object, that object will be used as the [babelify options](https://github.com/babel/babelify#options)
 - `options.require` is an array files to make available outside the bundle and any associated options:
 
 	```json
