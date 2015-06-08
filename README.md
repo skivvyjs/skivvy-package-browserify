@@ -42,7 +42,7 @@ skivvy run browserify
 | `options.minify` | `boolean` `object` | No | `false` | Whether to minify JS output using the [uglifyify](https://www.npmjs.com/package/uglifyify) transform |
 | `options.env` | `string` `object` | No | `null` | Set environment variables and enable [envify](https://www.npmjs.com/package/envify) transform |
 | `options.babelify` | `boolean` `object` | No | `false` | Whether to transform JS output using the [babelify](https://www.npmjs.com/package/babelify) transform |
-| `options.require` | `Array<string|object>` | No | `[]` | Files to make available outside the bundle |
+| `options.require` | `Array<string,object>` | No | `[]` | Files to make available outside the bundle |
 | `options.external` | `Array<string>` | No | `[]` | Prevent files from being loaded into the current bundle |
 | `options.ignore` | `Array<string>` | No | `[]` | Prevent files from showing up in the output bundle (return `{}` when required) |
 | `options.exclude` | `Array<string>` | No | `[]` | Prevent files from showing up in the output bundle (throw an error when required) |
