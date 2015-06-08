@@ -301,7 +301,10 @@ describe('task:browserify', function() {
 				exclude: [],
 				transform: [],
 				plugin: [],
-				babelify: false
+				watch: false,
+				babelify: false,
+				env: null,
+				minify: false
 			}
 		});
 	});
